@@ -1,4 +1,4 @@
-package instance
+package kemkum
 
 import (
 	"encoding/json"

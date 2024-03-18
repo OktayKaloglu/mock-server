@@ -1,9 +1,9 @@
 package main
 
-import "github.com/OktayKaloglu/mock-server/instance"
+import "github.com/OktayKaloglu/mock-server/kemkum"
 
 func main() {
 
-	asd, _ := instance.getServers("./config.json")
-	instance.printConfigs(asd)
+	asd, _ := kemkum.getServers("./config.json")
+	kemkum.printConfigs(asd)
 }
