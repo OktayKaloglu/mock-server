@@ -1,0 +1,62 @@
+[
+  {
+    "server_id": 0,
+    "ip": "local",
+    "port": "8080",
+    "type": "REST",
+    "return_type": "json",
+    "thread_count": 32,
+    "end_point": {
+      "product": [
+        { "id": 1, "name": "pencil", "count": 50.1 },
+        { "id": 2, "name": "eraser", "count": 250.21 },
+        { "id": 3, "name": "paper", "count": 500 }
+      ],
+      "consumer": [
+        { "id": 1, "name": "mike", "ccard_number": "50010001" },
+        { "id": 2, "name": "alison", "card_number": "50010002" },
+        { "id": 3, "name": "mark", "card_number": "50010003" }
+      ]
+    }
+  },
+  {
+    "server_id": 1,
+    "ip": "local",
+    "port": "8081",
+    "type": "REST",
+    "return_type": "json",
+    "thread_count": 32,
+    "end_point": {
+      "product": [
+        { "id": 1, "name": "truck", "count": 50 },
+        { "id": 2, "name": "car", "count": 250 },
+        { "id": 3, "name": "hback", "count": 500 }
+      ],
+      "consumer": [
+        { "id": 1, "name": "mike", "ccard_number": "50010001" },
+        { "id": 2, "name": "alison", "card_number": "50010002" },
+        { "id": 3, "name": "mark", "card_number": "50010003" }
+      ]
+    }
+  },
+  {
+    "server_id": 2,
+    "ip": "local",
+    "port": "8081",
+    "type": "REST",
+    "return_type": "json",
+    "thread_count": 32,
+    "end_point": {
+      "product": [
+        { "id": 1, "name": "truck", "count": 50 },
+        { "id": 2, "name": "car", "count": 250 },
+        { "id": 3, "name": "hback", "count": 500 }
+      ],
+      "consumer": [
+        { "id": 1, "name": "mike", "ccard_number": "50010001" },
+        { "id": 2, "name": "alison", "card_number": "50010002" },
+        { "id": 3, "name": "mark", "card_number": "50010003" }
+      ]
+    }
+  }
+]
