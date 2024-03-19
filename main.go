@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	_ "github.com/OktayKaloglu/mock-server/kemkum" // Assuming kemkum is a private package, replace with the correct import path if it's public.
+	_ "github.com/OktayKaloglu/mock-server/kemkum/kemkum"
 )
 
 func main() {
