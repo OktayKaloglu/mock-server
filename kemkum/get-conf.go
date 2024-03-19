@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+func main() {
+
+	fmt.Println("asd")
+
+}
+
 // Define structs as before (Server and EndPoint)
 type Server struct {
 	ServerID    int                      `json:"server_id"`
