@@ -5,14 +5,6 @@ import (
 	"fmt"
 	"os"
 )
-
-func main() {
-
-	fmt.Println("asd")
-
-}
-
-// Define structs as before (Server and EndPoint)
 type Server struct {
 	ServerID    int                      `json:"server_id"`
 	IP          string                   `json:"ip"`
@@ -23,6 +15,8 @@ type Server struct {
 	Data        map[string][]interface{} `json:"end_point"`
 	DataMap     map[string]map[string]string
 }
+
+// Define structs as before (Server and EndPoint)
 
 func convertEndPointToMap(data map[string][]interface{}) map[string]map[string]string {
 	result := make(map[string]map[string]string)
@@ -45,7 +39,7 @@ func convertEndPointToMap(data map[string][]interface{}) map[string]map[string]s
 
 	return result
 }
-func printConfigs(cfg []Server) {
+func PrintConfigs(cfg []Server) {
 
 	for _, config := range cfg {
 		fmt.Println("Server ID:", config.ServerID)
@@ -64,7 +58,7 @@ func printConfigs(cfg []Server) {
 	}
 }
 
-func getServers(path string) ([]Server, error) {
+func GetServers(path string) ([]Server, error) {
 	// Read the JSON data from cfg.json
 	data, err := os.ReadFile(path)
 	if err != nil {

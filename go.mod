@@ -1,3 +1,3 @@
-module github.com/OktayKaloglu/mock-server
+module mock-server
 
-go 1.22.0
+go 1.22.1
