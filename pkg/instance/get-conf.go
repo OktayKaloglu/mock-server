@@ -1,16 +1,18 @@
-package kemkum
+package instance
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 )
+
 type Server struct {
 	ServerID    int                      `json:"server_id"`
 	IP          string                   `json:"ip"`
 	Port        string                   `json:"port"`
 	Type        string                   `json:"type"`
 	ReturnType  string                   `json:"return_type"`
+	Status      string                   `json:"Status"`
 	ThreadCount int                      `json:"thread_count"`
 	Data        map[string][]interface{} `json:"end_point"`
 	DataMap     map[string]map[string]string
