@@ -2,6 +2,7 @@ package instance
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,7 +12,7 @@ import (
 	"sync"
 )
 
-func Run(path string, closeChan <-chan int, wg *sync.WaitGroup) []error {
+func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) []error {
 	servers, err := GetServers(path)
 	var errors []error
 
@@ -24,7 +25,7 @@ func Run(path string, closeChan <-chan int, wg *sync.WaitGroup) []error {
 
 	return errors
 }
-func (s *Server) Start(closeChan <-chan int, wg *sync.WaitGroup) error {
+func (s *Server) Start(closeChan <-chan string, wg *sync.WaitGroup) error {
 	// Add 1 to the waitgroup counter for this goroutine
 	wg.Add(1)
 
@@ -44,7 +45,7 @@ func (s *Server) Start(closeChan <-chan int, wg *sync.WaitGroup) error {
 				if s.ServerID == id {
 
 					listener.Close()
-					log.Printf("server:%v is closed by channel", s.ServerID)
+					fmt.Printf("server:%v is closed by channel", s.ServerID)
 					return nil
 				}
 			default:
@@ -63,6 +64,18 @@ func (s *Server) Start(closeChan <-chan int, wg *sync.WaitGroup) error {
 	}()
 	return nil
 }
+
+type Response struct {
+	Header  string
+	Status  string
+	Length  string
+	Payload string
+}
+
+func (r *Response) toString() string {
+	return r.Header + r.Status + r.Length + r.Payload
+}
+
 func (s *Server) handleConnection(conn net.Conn) {
 	defer conn.Close()
 
@@ -71,29 +84,71 @@ func (s *Server) handleConnection(conn net.Conn) {
 	_, err := bufio.NewReader(conn).Read(buf)
 	if err != nil {
 		fmt.Fprintf(conn, "Error reading request: %v\n", err)
-		log.Printf("Server:%v, error while handling request:%v", s.ServerID, err)
+		log.Printf("Server:%v, error while handling request err:%v\n", s.ServerID, err)
 		return
 	}
 
 	// Convert bytes to string and split by spaces
 	request := strings.Split(string(buf), " ")
 	if len(request) < 3 { // GET / HTTP/1.1 is at least 3 parts
-		log.Printf("Server:%v Invalid request: %v", s.ServerID, request)
+		log.Printf("Server:%v Invalid request: %v\n", s.ServerID, request)
 		return
 	}
 
 	method := strings.ToUpper(request[0]) // Convert to uppercase for switch statement
-	fmt.Printf("Server %v, handles the request : %v \n", s.ServerID, request)
+	log.Printf("Server %v, handles the request : %v \n", s.ServerID, request)
+	endpoints := strings.Split(request[1], "/")[1:] // first "/" is saved as empty string to the array, so we need to remove it
+	log.Printf("endpoints array: %v, len:%v \n", endpoints, len(endpoints))
 	var data []byte
 	switch method {
+
 	case "GET":
 		// Handle GET request...
-		fmt.Print(request[3])
-		data, _ = json.Marshal(s.DataMap)
+		data, _ = json.Marshal(getKeys(s.DataMap))
+		if len(endpoints) > 1 {
+			temp, ok := s.DataMap[endpoints[0]]
+			if ok {
+				temp2, ok2 := temp[endpoints[1]]
+				if ok2 {
+
+					data, _ = json.Marshal(temp2)
+				} else {
+					data, _ = json.Marshal(getKeys(temp))
+				}
+			}
+		} else if len(endpoints) > 0 {
+			temp, ok := s.DataMap[endpoints[0]]
+			if ok {
+				data, _ = json.Marshal(getKeys(temp))
+			}
+		}
 
 	case "POST":
 		// Handle POST request...
-		fmt.Fprintf(conn, "Received a POST request\n")
+		fmt.Printf("Received a POST request\n %v \n", request)
+		//409 conflict for same id
+		//201 created success and supply the newly created resource with id
+
+		decoder := json.NewDecoder(bytes.NewReader(buf))
+		var asd map[string]interface{}
+		err := decoder.Decode(&asd)
+		if err != nil {
+			// Handle decoding error
+			fmt.Println(err)
+			return
+		}
+		for key, val := range asd {
+			fmt.Printf("key: %v, val:%v\n", key, val)
+		}
+
+		//if len(endpoints) > 0 {
+		//	a,ok:=s.DataMap[endpoints[0]]
+		//	if ok{
+		//
+		//		a[s.EndPointLen]=
+		//	}
+		//}
+
 	case "DELETE":
 		// Handle DELETE request...
 		fmt.Fprintf(conn, "Received a DELETE request\n")
@@ -108,4 +163,12 @@ func (s *Server) handleConnection(conn net.Conn) {
 	response := "HTTP/1.0 200 OK\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: " + strconv.Itoa(len(data)) + "\r\n\r\n" + string(data)
 	conn.Write([]byte(response))
 
+}
+func getKeys[T comparable, A any](m map[T]A) []T {
+	// Function body to extract keys from the map
+	keys := make([]T, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
 }

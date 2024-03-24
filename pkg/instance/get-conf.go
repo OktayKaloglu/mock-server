@@ -7,7 +7,7 @@ import (
 )
 
 type Server struct {
-	ServerID    int                      `json:"server_id"`
+	ServerID    string                   `json:"server_id"`
 	IP          string                   `json:"ip"`
 	Port        string                   `json:"port"`
 	Type        string                   `json:"type"`
@@ -15,14 +15,15 @@ type Server struct {
 	Status      string                   `json:"Status"`
 	ThreadCount int                      `json:"thread_count"`
 	Data        map[string][]interface{} `json:"end_point"`
+	EndPointLen int
 	DataMap     map[string]map[string]string
 }
 
 // Define structs as before (Server and EndPoint)
 
-func convertEndPointToMap(data map[string][]interface{}) map[string]map[string]string {
+func convertEndPointToMap(data map[string][]interface{}) (map[string]map[string]string, int) {
 	result := make(map[string]map[string]string)
-
+	var maxA int = 0
 	for key, value := range data {
 		innerMap := make(map[string]string)
 		for _, item := range value {
@@ -36,10 +37,13 @@ func convertEndPointToMap(data map[string][]interface{}) map[string]map[string]s
 			itemString = itemString[:len(itemString)-1] + "}"
 			innerMap[id] = itemString // Use "id" as the key for the item string
 		}
+		if len(innerMap) > maxA {
+			maxA = len(innerMap)
+		}
 		result[key] = innerMap
 	}
 
-	return result
+	return result, maxA
 }
 func PrintConfigs(cfg []Server) {
 
@@ -78,7 +82,8 @@ func GetServers(path string) ([]Server, error) {
 		return nil, err
 	}
 	for i := range cfg {
-		cfg[i].DataMap = convertEndPointToMap(cfg[i].Data)
+		cfg[i].DataMap, cfg[i].EndPointLen = convertEndPointToMap(cfg[i].Data)
+
 	}
 	return cfg, nil
 }

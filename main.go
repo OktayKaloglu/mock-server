@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"mock-server/pkg/instance"
 	"os"
@@ -22,7 +23,22 @@ func main() {
 	log.Println("Starting application")
 	path := "./servers.json"
 	var wg sync.WaitGroup
-	var mockChannel chan int
+	var mockChannel chan string
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			var s string
+			fmt.Scanln(&s)
+
+			mockChannel <- s
+
+			if len(mockChannel) > 2 {
+
+				return
+			}
+		}
+	}()
 	defer func() { close(mockChannel) }()
 	errs := instance.Run(path, mockChannel, &wg)
 	if len(errs) != 0 {
