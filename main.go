@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"mock-server/pkg/instance"
 	"os"
 	"sync"
+	"time"
 )
 
-func init() {
-	f, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+func main() {
+	f, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -17,34 +19,43 @@ func init() {
 
 	// Set output of logs to the opened file
 	log.SetOutput(f)
-}
 
-func main() {
 	log.Println("Starting application")
 	path := "./servers.json"
 	var wg sync.WaitGroup
 	var mockChannel chan string
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for {
-			var s string
-			fmt.Scanln(&s)
+	defer close(mockChannel)
 
-			mockChannel <- s
+	servers, errs := instance.Run(path, mockChannel, &wg)
+	if len(errs) > 0 {
+		for i := range errs {
 
-			if len(mockChannel) > 2 {
-
-				return
-			}
+			log.Printf("Mock server error: %v", errs[i])
 		}
-	}()
-	defer func() { close(mockChannel) }()
-	errs := instance.Run(path, mockChannel, &wg)
-	if len(errs) != 0 {
-		log.Printf("Errors occurred at mock servers: %v", errs)
 	}
+	for i := range servers {
+		fmt.Printf("sv:%v, port:%v\n", i, servers[i].Addr)
+		log.Printf("sv:%v, port:%v\n", i, servers[i].Addr)
+	}
+	time.Sleep(time.Second * 2)
+	for i := range servers {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second) // Set a timeout for graceful shutdown
+			defer cancel()
 
+			err := servers[i].Shutdown(ctx)
+			if err != nil {
+				log.Printf("Error shutting down server1: %v", err)
+				fmt.Printf("Error shutting down server1: %v", err)
+
+			} else {
+				fmt.Printf("Server:%v closed gracefully\n", i)
+				log.Printf("Server:%v closed gracefully\n", i)
+				wg.Done()
+
+			}
+		}()
+	}
 	wg.Wait()
 
 }
