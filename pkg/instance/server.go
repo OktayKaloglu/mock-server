@@ -11,44 +11,47 @@ import (
 	"sync"
 )
 
-type Response struct {
-	Status  int
-	Message string
-	Data    interface{}
-}
-
-func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) []error {
+func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) ([]*http.Server, []error) {
 	servers, err := GetServers(path)
 	var errors []error
-
 	if err != nil {
-		return append(errors, err)
+		errors = append(errors, err)
+		return nil, errors
 	}
+
+	var sv []*http.Server
 	for i := range servers {
-		errors = append(errors, servers[i].Start(closeChan, wg))
-	}
-
-	return errors
-}
-func (s *Server) Start(closeChan <-chan string, wg *sync.WaitGroup) error {
-
-	wg.Add(1)
-
-	go func() error {
-		defer wg.Done()
-		mux := http.NewServeMux()
-
-		mux.HandleFunc("/", s.Handler)
-		fmt.Printf("server: %v , Listening on: http://127.0.0.1:%v\n", s.ServerID, s.Port)
-		err := http.ListenAndServe(":"+s.Port, mux)
-		if err != nil {
-			fmt.Printf("server:%v error:%v\n", s.ServerID, err)
-			return err
+		sv1, err1 := servers[i].Start(wg)
+		if err1 != http.ErrServerClosed {
+			sv = append(sv, sv1)
+		} else {
+			errors = append(errors, err1)
 		}
 
-		return nil
+	}
+
+	return sv, errors
+}
+func (s *Server) Start(wg *sync.WaitGroup) (*http.Server, error) {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", s.Handler)
+	sv := &http.Server{Addr: ":" + s.Port, Handler: mux}
+
+	fmt.Printf("server: %v , Listening on: http://127.0.0.1:%v\n", s.ServerID, s.Port)
+	var err error
+	wg.Add(1)
+
+	go func() {
+		err = sv.ListenAndServe()
+		if err != http.ErrServerClosed {
+			fmt.Printf("server:%v error:%v\n", s.ServerID, err)
+			log.Printf("Server %v, error: %v", s.ServerID, err)
+
+		}
 	}()
-	return nil
+
+	return sv, err
 }
 func getKeys[T comparable, A any](m map[T]A) []T {
 	// Function body to extract keys from the map
@@ -57,6 +60,14 @@ func getKeys[T comparable, A any](m map[T]A) []T {
 		keys = append(keys, key)
 	}
 	return keys
+}
+
+// todo!
+// make every method separate function
+type Response struct {
+	Status  int
+	Message string
+	Data    interface{}
 }
 
 func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
@@ -185,9 +196,10 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 		response.Status = http.StatusMethodNotAllowed
 
 	}
-
+	//todo!
 	//responded data: is not json object its string like "{a:1,b:2}"
 	json.NewEncoder(w).Encode(response)
+	log.Printf("server:%v ,response: %v\n", s.ServerID, fmt.Sprint(response))
 }
 func convertMapJson(mp *map[string]interface{}) string {
 	s := "{"

@@ -3,10 +3,17 @@ package instance
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 )
 
+// todo!
+// split in to two different struct, make row struct
+// then map the map from the rows
 type Server struct {
+	stop chan struct{}
+
+	mux         *http.ServeMux
 	ServerID    string                   `json:"server_id"`
 	IP          string                   `json:"ip"`
 	Port        string                   `json:"port"`

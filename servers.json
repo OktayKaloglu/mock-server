@@ -44,7 +44,7 @@
   {
     "server_id": "2",
     "ip": "local",
-    "port": "8081",
+    "port": "8082",
     "type": "REST",
     "return_type": "json",
     "thread_count": 32,
