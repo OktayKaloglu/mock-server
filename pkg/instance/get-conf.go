@@ -28,7 +28,7 @@ type Server struct {
 
 // Define structs as before (Server and EndPoint)
 
-func convertEndPointToMap(data map[string][]interface{}) (map[string]map[string]string, int) {
+func ConvertEndPointToMap(data map[string][]interface{}) (map[string]map[string]string, int) {
 	result := make(map[string]map[string]string)
 	var maxA int = 0
 	for key, value := range data {
@@ -89,7 +89,7 @@ func GetServers(path string) ([]Server, error) {
 		return nil, err
 	}
 	for i := range cfg {
-		cfg[i].DataMap, cfg[i].EndPointLen = convertEndPointToMap(cfg[i].Data)
+		cfg[i].DataMap, cfg[i].EndPointLen = ConvertEndPointToMap(cfg[i].Data)
 
 	}
 	return cfg, nil

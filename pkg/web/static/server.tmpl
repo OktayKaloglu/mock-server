@@ -1,0 +1,38 @@
+
+
+<div class="container mx-auto p-4">
+<button id="correctButton" onclick="prettyPrint();">Correct (Ctrl+Alt+S) (Inline Parameters)</button>
+  <div id="holder-json" hx-get="/serverData/{{.ID}}" hx-target="#json-input" hx-swap="outerHTML" hx-trigger="load" class="mb-4">
+    <h1 class="text-2xl font-bold" >Enter your JSON data:</h1>
+    <form  hx-post="/serverData/{{.ID}}" hx-target="#json-input" hx-swap="outerHTML" hx-trigger="click" >
+      <textarea id="json-input" name="server"  rows="5" cols="50" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+      Server placeholder...
+      </textarea>
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send The Server</button>
+    </form>
+  </div>
+
+  
+</div>
+<script>
+
+  const textArea = document.getElementById("holder-json");
+  textArea.addEventListener("change", prettyPrint);
+  textArea.addEventListener("DOMNodeInserted", prettyPrint);
+  function prettyPrint() {
+     
+    var ugly = document.getElementById("json-input").value;
+    
+     
+    var obj = JSON.parse(ugly);
+    var pretty = JSON.stringify(obj, undefined, 4);
+    pretty.trim()
+    
+    document.getElementById('json-input').value = pretty;
+
+  }
+   
+   
+ 
+
+</script>

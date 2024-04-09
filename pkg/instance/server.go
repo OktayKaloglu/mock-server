@@ -11,7 +11,12 @@ import (
 	"sync"
 )
 
-func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) ([]*http.Server, []error) {
+type ServerAndHttp struct {
+	ServerStruct *Server
+	ServerHttp   *http.Server
+}
+
+func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) ([]*ServerAndHttp, []error) {
 	servers, err := GetServers(path)
 	var errors []error
 	if err != nil {
@@ -19,11 +24,11 @@ func Run(path string, closeChan <-chan string, wg *sync.WaitGroup) ([]*http.Serv
 		return nil, errors
 	}
 
-	var sv []*http.Server
+	var sv []*ServerAndHttp
 	for i := range servers {
 		sv1, err1 := servers[i].Start(wg)
 		if err1 != http.ErrServerClosed {
-			sv = append(sv, sv1)
+			sv = append(sv, &ServerAndHttp{ServerStruct: &servers[i], ServerHttp: sv1})
 		} else {
 			errors = append(errors, err1)
 		}

@@ -1,0 +1,21 @@
+{
+  "server_id": "0",
+  "ip": "local",
+  "port": "8080",
+  "type": "REST",
+  "return_type": "json",
+  "thread_count": 32,
+  "status": "available",
+  "end_point": {
+    "product": [
+      { "id": 1, "name": "pencil", "count": 50.1 },
+      { "id": 2, "name": "eraser", "count": 250.21 },
+      { "id": 3, "name": "paper", "count": 500 }
+    ],
+    "consumer": [
+      { "id": 1, "name": "mike", "ccard_number": "50010001" },
+      { "id": 2, "name": "alison", "card_number": "50010002" },
+      { "id": 3, "name": "mark", "card_number": "50010003" }
+    ]
+  }
+}
