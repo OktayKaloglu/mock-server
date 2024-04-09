@@ -1,0 +1,41 @@
+
+<div id="servers-table" class="container p-2 mx-auto sm:p-4 dark:text-gray-800"  >
+	 <div class="overflow-x-auto">
+		<table class="min-w-full text-xs" >
+			<colgroup>
+				<col>
+				<col>
+				<col>
+				<col>
+				 
+				<col class="">
+			</colgroup>
+			<thead class="dark:bg-gray-300">
+				<tr class="text-left">
+					 
+                    {{range .Cols}}
+                        <th class="p-3">{{.}}</th>
+                    {{end}}  
+                    <th class="p-3">Run/Close</th>
+				</tr>
+			</thead>
+			<tbody
+                   
+            >
+                {{range .Rows}}
+                    <tr onclick="window.location.href='/servers/{{.ServerID}}'" class="border-b border-opacity-20 dark:border-gray-300 dark:bg-gray-50 hover:bg-gray-100">
+                    {{range .Rows}}
+                        <td class="p-3">{{.}}</td>
+                    {{end}}
+                    <td class="p-3">
+                    <button  id="server-button{{.ServerID}}" hx-get="/serversButton/{{.ServerID}}/status" hx-trigger="load" hx-swap="outerHTML" class="btn orange">Pending</Button>
+                    </td>
+                    
+                    </tr>
+                {{end}}
+				
+				 
+			</tbody>
+		</table>
+	</div>
+</div>
